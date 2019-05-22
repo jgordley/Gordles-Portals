@@ -46,6 +46,12 @@ local uiGroup
 local portalOffset
 local portalOffsetOrientation
 
+local transportOffset
+local directionRelative
+local xtarget
+local ytarget
+local velocityMagnitude
+
 local function backButton(event)
 	if event.phase == "began" then
         composer.gotoScene("levelselect", {time=500, effect="crossFade"})
@@ -99,13 +105,15 @@ local function direction(object)
 	end
 end
 
-local function loadPortals(portalName, x1, y1, orientation1, x2, y2, orientation2)
+local function loadPortals(portalName, x1, y1, orientation1, direction1, x2, y2, orientation2, direction2)
 	width, height = orientation(orientation1)
 	portalOne = display.newImageRect(mainGroup, portalName, width, height)
 	portalOne.x = x1
 	portalOne.y = y1
 	physics.addBody(portalOne, {isSensor=true})
 	portalOne.myName = "portal"
+	portalOne.orientation = orientation1
+	portalOne.direction = direction1
 
 	width, height = orientation(orientation2)
 	portalTwo = display.newImageRect(mainGroup, portalName, width, height)
@@ -113,6 +121,8 @@ local function loadPortals(portalName, x1, y1, orientation1, x2, y2, orientation
 	portalTwo.y = y2
 	physics.addBody(portalTwo, {isSensor=true})
 	portalTwo.myName = "portal"
+	portalTwo.orientation = orientation2
+	portalTwo.direction = direction2
 
 	portalOne.partner = portalTwo
 	portalTwo.partner = portalOne
@@ -130,6 +140,53 @@ local function setPlayerVelocity(vx, vy)
 	player.vx = vx
 	player.vy = vy
 	player:setLinearVelocity(player.vx, player.vy)
+end
+
+local function trajectory(obj, col, targ, vx, vy)
+	velocityMagnitude = math.sqrt(vx^2 + vy^2)
+
+end
+
+local function transport(object, objectCollided, target, xv, yv)
+
+	print(objectCollided.orientation)
+	print(objectCollided.myName)
+	print(objectCollided.direction)
+
+	-- Get the object offset from the portal on collision
+	if objectCollided.orientation == "horizontal" then
+		transportOffset = objectCollided.x - object.x
+		print("Transport offset: " .. transportOffset)
+	elseif objectCollided.orientation == "vertical" then
+		transportOffset = objectCollided.y - object.y
+		print("Transport offset: " .. transportOffset)
+	end
+
+	-- Determine the new x and y coordinates and transport the object
+	if target.orientation == "horizontal" then
+		if target.direction == "up" then
+			xtarget = target.x-transportOffset
+			ytarget = target.y
+		elseif target.direction == "down" then
+			xtarget = target.x+transportOffset
+			ytarget = target.y
+		end
+	elseif target.orientation == "vertical" then
+		if target.direction == "right" then
+			xtarget = target.x 
+			ytarget = target.y-transportOffset
+		elseif target.direction == "left" then
+			xtarget = target.x 
+			ytarget = target.y+transportOffset
+		end
+	end
+	object.x = xtarget
+	object.y = ytarget
+
+	xdir, ydir = direction(object)
+
+	-- xdir, ydir = trajectory(object, objectCollided, target, xv, yv)
+	object:setLinearVelocity(xdir, ydir)
 end
 
 local function fadeAndMove(object, xpos, ypos, xv, yv)
@@ -168,12 +225,12 @@ local function onCollision(event)
 		if(obj1.myName == "player" and obj1.canTravel and obj2.myName == "portal" and game) then
 			vx, vy = obj1:getLinearVelocity()
 			obj1.canTravel=false
-			timer.performWithDelay(200, function() return fadeAndMove(obj1, obj2.partner.x, obj2.partner.y, vx, vy) end, 1)
+			timer.performWithDelay(200, function() return transport(obj1, obj2, obj2.partner, vx, vy) end, 1)
 			timer.performWithDelay(500, function() obj1.canTravel=true end, 1)
 		elseif(obj2.myName == "player" and obj2.canTravel and obj1.myName == "portal" and game) then
 			vx, vy = obj2:getLinearVelocity()
 			obj2.canTravel=false
-			timer.performWithDelay(200, function() return fadeAndMove(obj2, obj1.partner.x, obj1.partner.y, vx, vy) end, 1)
+			timer.performWithDelay(200, function() return transport(obj2, obj1, obj1.partner, vx, vy) end, 1)
 			timer.performWithDelay(500, function() obj2.canTravel=true end, 1)
 		elseif(obj1.myName == "player" and obj2.myName == "barrier" and obj1.myName == true and game) then
 			obj1.canRespawn = false
@@ -272,7 +329,7 @@ function scene:create( event )
 	for i=1,_numPortalSets do
 		portal1 = _portals[i]
 		portal2 = _portals[i+1]
-		loadPortals(portal1.color, portal1.x, portal1.y, portal1.orientation, portal2.x, portal2.y, portal2.orientation)
+		loadPortals(portal1.color, portal1.x, portal1.y, portal1.orientation, portal1.direction, portal2.x, portal2.y, portal2.orientation, portal2.direction)
 	end
 
 	-- Load the barriers
