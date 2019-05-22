@@ -26,12 +26,14 @@ local function levelOne()
 	portal1.x = display.contentCenterX
 	portal1.y = display.contentHeight-12.5
 	portal1.orientation = "horizontal"
+	portal1.direction = "up"
 
 	local portal2 = {}
 	portal2.color = "portal_yellow.png"
 	portal2.x = display.contentCenterX
 	portal2.y = 12.5
 	portal2.orientation = "horizontal"
+	portal2.direction = "down"
 
 	--Barriers
 	local barrier1 = {}
@@ -67,12 +69,14 @@ local function levelTwo()
 	portal1.x = display.contentCenterX
 	portal1.y = display.contentHeight-12.5
 	portal1.orientation = "horizontal"
+	portal1.direction = "up"
 
 	local portal2 = {}
 	portal2.color = "portal_yellow.png"
-	portal2.x = display.contentCenterX
-	portal2.y = 12.5
-	portal2.orientation = "horizontal"
+	portal2.x = display.contentWidth-12.5
+	portal2.y = display.contentCenterY
+	portal2.orientation = "vertical"
+	portal2.direction = "left"
 
 	--Barriers
 	local barrier1 = {}
