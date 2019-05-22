@@ -1,4 +1,6 @@
 # Gordles-Portals
 ## Portal Game using the Corona SDK
-
-![Game Screenshot](https://ibb.co/KGZCVr7)
+<br>
+<img src="https://i.ibb.co/RSnLQDP/portal-screenshot.png" width="200" height="440">
+<br>
+<h4> Screenshot of Menu </h4>
