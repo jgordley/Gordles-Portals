@@ -97,6 +97,40 @@ local function levelTwo()
 	table.insert( _barriers, barrier1 )
 end
 
+local function levelThree()
+
+	--Clear previous table and barriers
+	_portals = {}
+	_barriers = {}
+	--Portal Sets
+	_numPortalSets = 1
+	_numBarriers = 0
+
+	--Portals
+	local portal1 = {}
+	portal1.color = "portal_yellow.png"
+	portal1.x = display.contentCenterX
+	portal1.y = display.contentHeight-12.5
+	portal1.orientation = "horizontal"
+	portal1.direction = "up"
+
+	local portal2 = {}
+	portal2.color = "portal_yellow.png"
+	portal2.x = display.contentWidth-12.5
+	portal2.y = display.contentCenterY
+	portal2.orientation = "vertical"
+	portal2.direction = "left"
+
+	--Player and Goal
+	_player.x = display.contentCenterX
+	_player.y = display.contentCenterY + 100
+	_goal.x = display.contentWidth+500
+	_goal.y = display.contentHeight+500
+
+	table.insert( _portals, portal1 )
+	table.insert( _portals, portal2 )
+end
+
 
 function levels.level(num)
 	if(num==1) then
@@ -104,6 +138,7 @@ function levels.level(num)
 	elseif(num==2) then
 		levelTwo()
 	elseif(num==3) then
+		levelThree()
 	elseif(num==4) then
 	elseif(num==5) then
 	end

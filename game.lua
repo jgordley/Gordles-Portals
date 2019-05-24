@@ -51,6 +51,8 @@ local directionRelative
 local xtarget
 local ytarget
 local velocityMagnitude
+local currentDirectionRadians
+local currentDirection
 
 local function backButton(event)
 	if event.phase == "began" then
@@ -143,8 +145,64 @@ local function setPlayerVelocity(vx, vy)
 end
 
 local function trajectory(obj, col, targ, vx, vy)
-	velocityMagnitude = math.sqrt(vx^2 + vy^2)
 
+	print("x-velocity to start: " .. vx)
+	print("y-velocity to start: " .. vy)
+	velocityMagnitude = math.sqrt(vx^2 + vy^2)
+	print("Velocity magnitude: " .. velocityMagnitude)
+
+	-- Direction in radians upside down
+	currentDirectionRadians = math.atan(vy/vx)
+
+	if vx < 0 and vy < 0 then
+		currentDirectionRadians = math.pi+currentDirectionRadians
+	-- elseif vx > 0 and vy < 0 then
+	-- 	currentDirectionRadians = math.pi+currentDirectionRadians
+	-- elseif vx < 0 and vy > 0 then 
+	-- 	currentDirectionRadians = math.pi+currentDirectionRadians
+	-- elseif vx > 0 and vy > 0 then
+	-- 	currentDirectionRadians = math.pi+currentDirectionRadians
+	end
+
+	print("Current direction in radians" .. currentDirectionRadians*180/math.pi)
+
+	-- if col.direction == "down" and targ.direction == "up" then
+	-- 	currentDirection = currentDirectionRadians
+	-- elseif col.direction == "down" and targ.direction == "right" then
+	-- 	currentDirection = currentDirectionRadians 
+	-- elseif col.direction == "down" and targ.direction == "left" then
+	-- elseif col.direction == "down" and targ.direction == "down" then
+	-- 	currentDirection = currentDirectionRadians-math.pi/2
+	-- end
+
+	-- Get the direction in degrees relative to right
+	if col.direction == "left" then
+		currentDirection = currentDirectionRadians
+	elseif col.direction == "right" then
+		currentDirection = currentDirectionRadians + math.pi
+	elseif col.direction == "down" then
+		currentDirection = currentDirectionRadians + math.pi/2
+	elseif col.direction == "up" then
+		currentDirection = currentDirectionRadians - math.pi/2
+	end
+
+	print("degrees relative to right: " .. currentDirection)
+
+	if targ.direction == "left" then
+		currentDirection = currentDirection
+	elseif targ.direction == "right" then
+		currentDirection = currentDirection + math.pi
+	elseif targ.direction == "down" then
+		currentDirection = currentDirection + math.pi/2
+	elseif targ.direction == "up" then
+		currentDirection = currentDirection - math.pi/2
+	end
+
+	print("degrees for trajectory: " .. currentDirection*180/math.pi)
+	print("x-velocity: " .. velocityMagnitude*math.cos(currentDirection))
+	print("y-velocity: " .. velocityMagnitude*math.sin(currentDirection))
+
+	return velocityMagnitude*math.cos(currentDirection), velocityMagnitude*math.sin(currentDirection)
 end
 
 local function transport(object, objectCollided, target, xv, yv)
@@ -183,7 +241,7 @@ local function transport(object, objectCollided, target, xv, yv)
 	object.x = xtarget
 	object.y = ytarget
 
-	xdir, ydir = direction(object)
+	xdir, ydir = trajectory(object, objectCollided, target, xv, yv)
 
 	-- xdir, ydir = trajectory(object, objectCollided, target, xv, yv)
 	object:setLinearVelocity(xdir, ydir)
@@ -208,7 +266,7 @@ local function handleWin(player1, goal1)
 	display.remove(player1)
 	display.remove(goal1)
 
-	local nextLevelButton = display.newImageRect(uiGroup, "portal_blue.png", display.contentWidth/3, display.contentHeight/10)
+	local nextLevelButton = display.newImageRect(uiGroup, "portal_blue.png", display.contentWidth/2, display.contentHeight/10)
 	nextLevelButton.x = display.contentCenterX
 	nextLevelButton.y = display.contentCenterY + 150
 	nextLevelButton.text = display.newText(uiGroup, "Next Level", nextLevelButton.x, nextLevelButton.y, native.systemFont, 60)
@@ -262,10 +320,12 @@ function checkSwipeDirection()
 		yDistance = endY-beginY
 		swipeDegrees = math.atan(yDistance/xDistance)
 		print(swipeDegrees)
-		if xDistance>=0 then
-			setPlayerVelocity(400*math.cos(swipeDegrees), 400*math.sin(swipeDegrees))
-		else
-			setPlayerVelocity(-400*math.cos(swipeDegrees), -400*math.sin(swipeDegrees))
+		if math.sqrt(xDistance^2 + yDistance^2) > minSwipeDistance then
+			if xDistance>=0 then
+				setPlayerVelocity(400*math.cos(swipeDegrees), 400*math.sin(swipeDegrees))
+			else
+				setPlayerVelocity(-400*math.cos(swipeDegrees), -400*math.sin(swipeDegrees))
+			end
 		end
 	end
 end
