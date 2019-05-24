@@ -8,6 +8,8 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
+-- Testing changes
+
 local physics = require( "physics" )
 local vx, vy
 local xdir, ydir
