@@ -3,12 +3,15 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 
+local levelScript = require("levelinfo")
+
 _portals = {}
 _barriers = {}
 _numPortalSets = 0
 _numBarriers = 0
 _goal = {}
 _player = {}
+_canSwipe = false
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless

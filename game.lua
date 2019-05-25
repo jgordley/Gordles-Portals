@@ -54,6 +54,10 @@ local xtarget
 local ytarget
 local velocityMagnitude
 
+local cX 
+local cY 
+local travelDirection
+
 local function backButton(event)
 	if event.phase == "began" then
         composer.gotoScene("levelselect", {time=500, effect="crossFade"})
@@ -144,9 +148,72 @@ local function setPlayerVelocity(vx, vy)
 	player:setLinearVelocity(player.vx, player.vy)
 end
 
-local function trajectory(obj, col, targ, vx, vy)
-	velocityMagnitude = math.sqrt(vx^2 + vy^2)
+local function convertCoordinates(vx, vy)
+	if vx > 0 and vy > 0 then
+		vy = -vy
+	elseif vx > 0 and vy < 0 then
+		vy = -vy
+	elseif vx < 0 and vy < 0 then
+		vy = -vy
+	elseif vx < 0 and vy > 0 then
+		vy = -vy
+	end
+	-- Am I stupid?
+	return vx, vy
+end
 
+local function trajectory(obj, col, targ, vx, vy)
+	print("vx: " .. vx .. " vy: " .. vy)
+	print("current direction: " .. math.atan(vx/vy)*180/math.pi .. " degrees.")
+	velocityMagnitude = math.sqrt(vx^2 + vy^2)
+	print("Magnitude: " .. velocityMagnitude)
+	cX, cY = convertCoordinates(vx, vy)
+	print("cartesian vx: " .. cX .. " cartesian vy: " .. cY)
+	travelDirection = math.atan(cY/cX)
+	if (cX < 0 and cY > 0) or (cX < 0 and cY < 0) then
+		travelDirection = travelDirection+math.pi
+	end
+	print("cartesian direction: " .. travelDirection*180/math.pi .. " degrees.")
+
+	-- Make the angle relative to cartesian
+	if col.direction == "up" then
+		-- do nothing its also already relative
+	elseif col.direction == "down" then
+		travelDirection = travelDirection + math.pi
+		-- do nothing, its already relative
+	elseif col.direction == "left" then
+		travelDirection = travelDirection + math.pi/2
+	elseif col.direction == "right" then
+		travelDirection = travelDirection - math.pi/2
+	end
+
+	print("shifted cartesian direction: " .. travelDirection*180/math.pi .. " degrees.")
+
+	if col.orientation == targ.orientation then
+		travelDirection = travelDirection + math.pi
+	end
+
+	-- Set new travel direction
+	if targ.direction == "up" then
+		-- Already relative
+	elseif targ.direction == "down" then
+		travelDirection = travelDirection + math.pi
+		-- Already relative
+	elseif targ.direction == "right" then
+		travelDirection = travelDirection+math.pi/2
+	elseif targ.direction == "left" then
+		travelDirection = travelDirection-math.pi/2
+	end
+
+	print("exit cartesian direction: " .. travelDirection*180/math.pi .. " degrees.")
+
+	cX = velocityMagnitude*math.cos(travelDirection)
+	cY = velocityMagnitude*math.sin(travelDirection)
+	print("exit cartesian vx: " .. cX .. " exit cartesian vy: " .. cY)
+
+	cX, cY = convertCoordinates(cX,cY)
+	print("exit vx: " .. cX .. " exit vy: " .. cY)
+	return cX, cY
 end
 
 local function transport(object, objectCollided, target, xv, yv)
@@ -170,7 +237,7 @@ local function transport(object, objectCollided, target, xv, yv)
 			xtarget = target.x-transportOffset
 			ytarget = target.y
 		elseif target.direction == "down" then
-			xtarget = target.x+transportOffset
+			xtarget = target.x-transportOffset
 			ytarget = target.y
 		end
 	elseif target.orientation == "vertical" then
@@ -179,13 +246,13 @@ local function transport(object, objectCollided, target, xv, yv)
 			ytarget = target.y-transportOffset
 		elseif target.direction == "left" then
 			xtarget = target.x 
-			ytarget = target.y+transportOffset
+			ytarget = target.y-transportOffset
 		end
 	end
 	object.x = xtarget
 	object.y = ytarget
 
-	xdir, ydir = direction(object)
+	xdir, ydir = trajectory(object, objectCollided, target, xv, yv)
 
 	-- xdir, ydir = trajectory(object, objectCollided, target, xv, yv)
 	object:setLinearVelocity(xdir, ydir)
@@ -202,15 +269,18 @@ local function handleDeath(player1)
 	print("died")
 	player1.x = _player.x
 	player1.y = _player.y
+	_canSwipe = true
+	setPlayerVelocity(0, 0)
 	player1.canRespawn = true
 end
 
 local function handleWin(player1, goal1)
 	print("victory")
+	_canSwipe = false
 	display.remove(player1)
 	display.remove(goal1)
 
-	local nextLevelButton = display.newImageRect(uiGroup, "portal_blue.png", display.contentWidth/3, display.contentHeight/10)
+	local nextLevelButton = display.newImageRect(uiGroup, "portal_blue.png", display.contentWidth/2, display.contentHeight/10)
 	nextLevelButton.x = display.contentCenterX
 	nextLevelButton.y = display.contentCenterY + 150
 	nextLevelButton.text = display.newText(uiGroup, "Next Level", nextLevelButton.x, nextLevelButton.y, native.systemFont, 60)
@@ -264,10 +334,14 @@ function checkSwipeDirection()
 		yDistance = endY-beginY
 		swipeDegrees = math.atan(yDistance/xDistance)
 		print(swipeDegrees)
-		if xDistance>=0 then
-			setPlayerVelocity(400*math.cos(swipeDegrees), 400*math.sin(swipeDegrees))
-		else
-			setPlayerVelocity(-400*math.cos(swipeDegrees), -400*math.sin(swipeDegrees))
+		if math.sqrt(xDistance^2 + yDistance^2) > minSwipeDistance and _canSwipe then
+			if xDistance>=0 then
+				setPlayerVelocity(400*math.cos(swipeDegrees), 400*math.sin(swipeDegrees))
+				-- _canSwipe=false
+			else
+				setPlayerVelocity(-400*math.cos(swipeDegrees), -400*math.sin(swipeDegrees))
+				-- _canSwipe=false
+			end
 		end
 	end
 end
@@ -328,7 +402,7 @@ function scene:create( event )
 	loadGoal(_goal.x, _goal.y)
 
 	-- Load the portals
-	for i=1,_numPortalSets do
+	for i=1,_numPortalSets*2,2 do
 		portal1 = _portals[i]
 		portal2 = _portals[i+1]
 		loadPortals(portal1.color, portal1.x, portal1.y, portal1.orientation, portal1.direction, portal2.x, portal2.y, portal2.orientation, portal2.direction)
@@ -339,6 +413,10 @@ function scene:create( event )
 		barrier1 = _barriers[i]
 		loadBarrier(barrier1.color, barrier1.x, barrier1.y, barrier1.width, barrier1.height)
 	end
+
+	--Allow user to swipe
+	_canSwipe = true
+
 
 	-- Display lives and score
 	

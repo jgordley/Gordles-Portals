@@ -61,15 +61,15 @@ local function levelTwo()
 	_barriers = {}
 	--Portal Sets
 	_numPortalSets = 1
-	_numBarriers = 1
+	_numBarriers = 0
 
 	--Portals
 	local portal1 = {}
 	portal1.color = "portal_yellow.png"
-	portal1.x = display.contentCenterX
-	portal1.y = display.contentHeight-12.5
-	portal1.orientation = "horizontal"
-	portal1.direction = "up"
+	portal1.x = 12.5
+	portal1.y = display.contentCenterY
+	portal1.orientation = "vertical"
+	portal1.direction = "right"
 
 	local portal2 = {}
 	portal2.color = "portal_yellow.png"
@@ -77,6 +77,20 @@ local function levelTwo()
 	portal2.y = display.contentCenterY
 	portal2.orientation = "vertical"
 	portal2.direction = "left"
+
+	local portal3 = {}
+	portal3.color = "portal_blue.png"
+	portal3.x = 12.5
+	portal3.y = display.contentCenterY
+	portal3.orientation = "vertical"
+	portal3.direction = "right"
+
+	local portal4 = {}
+	portal4.color = "portal_blue.png"
+	portal4.x = display.contentCenterX
+	portal4.y = 12.5
+	portal4.orientation = "horizontal"
+	portal4.direction = "down"
 
 	--Barriers
 	local barrier1 = {}
@@ -89,11 +103,15 @@ local function levelTwo()
 	--Player and Goal
 	_player.x = display.contentCenterX
 	_player.y = display.contentCenterY + 100
-	_goal.x = display.contentCenterX
-	_goal.y = display.contentHeight-150
+	_goal.x = display.contentWidth + 600
+	_goal.y = display.contentHeight + 600
+	-- _goal.x = display.contentCenterX
+	-- _goal.y = display.contentHeight-150
 
 	table.insert( _portals, portal1 )
 	table.insert( _portals, portal2 )
+	table.insert( _portals, portal3)
+	table.insert( _portals, portal4)
 	table.insert( _barriers, barrier1 )
 end
 
@@ -104,6 +122,7 @@ function levels.level(num)
 	elseif(num==2) then
 		levelTwo()
 	elseif(num==3) then
+		levelThree()
 	elseif(num==4) then
 	elseif(num==5) then
 	end
