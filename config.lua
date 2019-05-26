@@ -11,13 +11,5 @@ application =
      	height = aspectRatio < 1.5 and 1024 or math.ceil( 768 * aspectRatio ),
       	scale = "letterBox",
       	fps = 60,
-		
-		--[[
-		imageSuffix =
-		{
-			    ["@2x"] = 2,
-			    ["@4x"] = 4,
-		},
-		--]]
 	},
 }

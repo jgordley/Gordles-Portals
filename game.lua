@@ -18,10 +18,10 @@ physics.start()
 physics.setGravity( 0, 0 )
 
 --Swipe variables
-local beginX 
-local beginY  
-local endX  
-local endY 
+local beginX
+local beginY
+local endX
+local endY
  
 local xDistance  
 local yDistance
@@ -92,22 +92,11 @@ end
 
 local function orientation(direction)
 	if(direction=="horizontal") then
-		return 300, 25
+		return 250, 25
 	elseif(direction=="vertical") then
-		return 25, 300
+		return 25, 250
 	else
 		print("ORIENTATION ERROR")
-	end
-end
-
-local function direction(object)
-	xDifference = object.x-display.contentWidth/2
-	yDifference = object.y-display.contentHeight/2
-
-	if(math.abs(xDifference)>math.abs(yDifference)) then
-		return -xDifference, 0
-	else
-		return 0, -yDifference
 	end
 end
 
@@ -134,12 +123,13 @@ local function loadPortals(portalName, x1, y1, orientation1, direction1, x2, y2,
 	portalTwo.partner = portalOne
 end
 
-local function loadBarrier(barrierName, x1, y1, width, height) 
+local function loadBarrier(barrier, barrierName, x1, y1, width, height) 
 	barrier1 = display.newImageRect(mainGroup, barrierName, width, height)
 	barrier1.x = x1
 	barrier1.y = y1
 	barrier1.myName = "barrier"
 	physics.addBody(barrier1, "dynamic", {bounce=1, isSensor=true})
+	barrier1.rotation = barrier.rotationVal
 end
 
 local function setPlayerVelocity(vx, vy)
@@ -168,6 +158,11 @@ local function trajectory(obj, col, targ, vx, vy)
 	velocityMagnitude = math.sqrt(vx^2 + vy^2)
 	print("Magnitude: " .. velocityMagnitude)
 	cX, cY = convertCoordinates(vx, vy)
+	if cX == 0 then
+		cX = 0.0001
+	elseif cY == 0 then
+		cY = 0.0001
+	end
 	print("cartesian vx: " .. cX .. " cartesian vy: " .. cY)
 	travelDirection = math.atan(cY/cX)
 	if (cX < 0 and cY > 0) or (cX < 0 and cY < 0) then
@@ -258,13 +253,6 @@ local function transport(object, objectCollided, target, xv, yv)
 	object:setLinearVelocity(xdir, ydir)
 end
 
-local function fadeAndMove(object, xpos, ypos, xv, yv)
-	object.x = xpos
-	object.y = ypos
-	xdir, ydir = direction(object)
-	object:setLinearVelocity(xdir, ydir)
-end
-
 local function handleDeath(player1)
 	print("died")
 	player1.x = _player.x
@@ -351,18 +339,22 @@ end
         	bDoingTouch = true
             beginX = event.x
             beginY = event.y
-            swipeIndicator = display.newImageRect(uiGroup, "portal_red.png", 5, 0)
-            swipeIndicator.x = player.x
-            swipeIndicator.y = player.y
+            -- swipeIndicator = display.newImageRect(uiGroup, "portal_red.png", 5, 0)
+            -- swipeIndicator.x = player.x
+            -- swipeIndicator.y = player.y
         elseif event.phase == "moved" then
-        	swipeIndicator.width = math.sqrt((beginX-event.x)^2 +(beginY-event.y)^2)
-        	swipeIndicator.height = 5;
+        	-- swipeIndicator.width = math.sqrt((beginX-event.x)^2 +(beginY-event.y)^2)
+        	-- swipeIndicator.height = 7
+        	-- direction = math.atan((event.y-beginY)/(event.x-beginX)) * 180/math.pi
+        	-- print(direction)
+        	-- swipeIndicator.rotation = direction
+        	-- print("rotation: " .. swipeIndicator.rotation)
         elseif event.phase == "ended"  then
             endX = event.x
             endY = event.y
             checkSwipeDirection();
             bDoingTouch = false
-            display.remove(swipeIndicator)
+            -- display.remove(swipeIndicator)
         end
 end
  
@@ -401,6 +393,19 @@ function scene:create( event )
 	loadPlayer(_player.x, _player.y)
 	loadGoal(_goal.x, _goal.y)
 
+	-- Load the edges
+	-- local leftWall = display.newImageRect(mainGroup, "portal_red.png", 10, display.contentHeight)
+	-- leftWall.x = 5
+	-- leftWall.y = display.contentCenterY
+	-- leftWall.myName = "barrier"
+	-- physics.addBody(leftWall, "dynamic", {bounce=1, isSensor=true})
+
+	-- local topWall = display.newImageRect(mainGroup, "portal_red.png", display.contentWidth, 10)
+	-- topWall.x = display.contentCenterX
+	-- topWall.y = 5
+	-- topWall.myName = "barrier"
+	-- physics.addBody(topWall, "dynamic", {bounce=1, isSensor=true})
+
 	-- Load the portals
 	for i=1,_numPortalSets*2,2 do
 		portal1 = _portals[i]
@@ -411,7 +416,7 @@ function scene:create( event )
 	-- Load the barriers
 	for i=1,_numBarriers do
 		barrier1 = _barriers[i]
-		loadBarrier(barrier1.color, barrier1.x, barrier1.y, barrier1.width, barrier1.height)
+		loadBarrier(barrier1, barrier1.color, barrier1.x, barrier1.y, barrier1.width, barrier1.height)
 	end
 
 	--Allow user to swipe
