@@ -385,9 +385,17 @@ function scene:create( event )
 	sceneGroup:insert( uiGroup )    -- Insert into the scene's view group
 	
 	-- Load the background
-	local background = display.newImageRect( backGroup, "background.png", 800, 1400 )
+	local background = display.newImageRect( backGroup, "background.png", display.contentWidth, display.contentHeight )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
+
+	local tophelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.contentHeight-display.safeActualContentHeight )
+	tophelper.x = display.contentCenterX
+	tophelper.y = (display.safeScreenOriginY) - (display.contentHeight-display.safeActualContentHeight)/2
+
+	local bothelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.contentHeight-display.safeActualContentHeight )
+	bothelper.x = display.contentCenterX
+	bothelper.y = display.safeScreenOriginY + display.safeActualContentHeight + (display.contentHeight-display.safeActualContentHeight)/2
 	
 	-- Load the player
 	loadPlayer(_player.x, _player.y)

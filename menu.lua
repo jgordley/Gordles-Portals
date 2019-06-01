@@ -13,6 +13,8 @@ _goal = {}
 _player = {}
 _canSwipe = false
 
+local portalOffsetTop = display.safeScreenOriginY + 12.5
+local portalOffsetBottom = display.safeScreenOriginY + display.safeActualContentHeight - 12.5
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -130,16 +132,26 @@ function scene:create( event )
 	sceneGroup:insert( uiGroup )    -- Insert into the scene's view group
 	
 	-- Load the background
-	local background = display.newImageRect( backGroup, "background.png", 800, 1400 )
+	local background = display.newImageRect( backGroup, "background.png", display.contentWidth, display.contentHeight )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
+
+	local tophelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.contentHeight-display.safeActualContentHeight )
+	tophelper.x = display.contentCenterX
+	tophelper.y = (display.safeScreenOriginY) - (display.contentHeight-display.safeActualContentHeight)/2
+
+	local bothelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.contentHeight-display.safeActualContentHeight )
+	bothelper.x = display.contentCenterX
+	bothelper.y = display.safeScreenOriginY + display.safeActualContentHeight + (display.contentHeight-display.safeActualContentHeight)/2
+
+
 	
 	-- Load the player
 	loadPlayer(display.contentCenterX,display.contentHeight-100)
 
 	-- Load the portal
-	loadPortals("portal_red.png", display.contentCenterX, 12.5, "horizontal", 12.5, display.contentCenterY, "vertical")
-	loadPortals("portal_yellow.png", display.contentCenterX, display.contentHeight-12.5 ,"horizontal", 
+	loadPortals("portal_red.png", display.contentCenterX, portalOffsetTop, "horizontal", 12.5, display.contentCenterY, "vertical")
+	loadPortals("portal_yellow.png", display.contentCenterX, portalOffsetBottom ,"horizontal", 
 	display.contentWidth-12.5, display.contentCenterY, "vertical")
 	
 	-- StartPlayerMovement
@@ -153,7 +165,7 @@ function scene:create( event )
    	playButton.x = display.contentCenterX
    	playButton.y = display.contentCenterY
     playButton.text = display.newText( uiGroup, "Play", playButton.x, playButton.y, native.systemFont, 50 )
-    playButton.alpha=0.7
+    playButton.alpha = 0.7
  
     playButton:addEventListener( "tap", gotoLevel )
 end

@@ -9,6 +9,10 @@
 -- Properties to be set
 local levels = {}
 
+-- Offsets with buffer calculation
+local portalOffsetTop = display.safeScreenOriginY + 12.5
+local portalOffsetBottom = display.safeScreenOriginY + display.safeActualContentHeight - 12.5
+
 -- Level One ------------------------------------------------
 
 local function levelOne()
@@ -24,14 +28,14 @@ local function levelOne()
 	local portal1 = {}
 	portal1.color = "portal_yellow.png"
 	portal1.x = display.contentCenterX
-	portal1.y = display.contentHeight-12.5
+	portal1.y = portalOffsetBottom
 	portal1.orientation = "horizontal"
 	portal1.direction = "up"
 
 	local portal2 = {}
 	portal2.color = "portal_yellow.png"
 	portal2.x = display.contentCenterX
-	portal2.y = 12.5
+	portal2.y = portalOffsetTop
 	portal2.orientation = "horizontal"
 	portal2.direction = "down"
 
