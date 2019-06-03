@@ -145,6 +145,14 @@ function scene:create( event )
 	bothelper.x = display.contentCenterX
 	bothelper.y = display.actualContentHeight-(display.actualContentHeight-display.contentHeight)/2 
 
+	local lefthelper = display.newImageRect( uiGroup, "background.png", display.screenOriginX, display.contentHeight)
+	lefthelper.x = display.screenOriginX/2
+	lefthelper.y = display.contentCenterY
+	
+	local righthelper = display.newImageRect( uiGroup, "background.png", display.actualContentWidth-display.contentWidth,display.contentHeight )
+	righthelper.x = display.actualContentWidth-(display.actualContentWidth-display.contentWidth)/2
+	righthelper.y = display.contentCenterY
+
 	
 	-- Load the player
 	loadPlayer(display.contentCenterX,display.contentHeight-100)
