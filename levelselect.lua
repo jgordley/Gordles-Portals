@@ -45,7 +45,7 @@ function scene:create( event )
 	sceneGroup:insert( uiGroup )    -- Insert into the scene's view group
 	
 	-- Load the background
-	local background = display.newImageRect( backGroup, "background.png", 800, 1400 )
+	local background = display.newImageRect( backGroup, "background.png", display.contentWidth, display.contentHeight )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 	
@@ -54,7 +54,7 @@ function scene:create( event )
 		for j=1,3 do
 			levels[numCounter] = display.newImageRect(uiGroup, "portal_red.png", display.contentWidth/5, display.contentWidth/5)
 			levels[numCounter].x = j*display.contentWidth/4
-			levels[numCounter].y = i*display.contentHeight/7
+			levels[numCounter].y = (i+0.25)*display.contentHeight/7
 			levels[numCounter].number = numCounter
 			levels[numCounter].numberText = display.newText( uiGroup, numCounter, levels[numCounter].x, levels[numCounter].y, native.systemFontBold, 60)
 			levels[numCounter]:addEventListener( "touch", handleSelect )

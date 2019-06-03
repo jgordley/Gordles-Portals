@@ -168,6 +168,65 @@ local function levelTwo()
 	table.insert( _barriers, barrier3 )
 end
 
+function levelThree()
+		--Clear previous table and barriers
+	_portals = {}
+	_barriers = {}
+	--Portal Sets
+	_numPortalSets = 2
+	_numBarriers = 1
+
+	--Portals
+	local portal1 = {}
+	portal1.color = "portal_yellow.png"
+	portal1.x = display.contentCenterX
+	portal1.y = portalOffsetBottom
+	portal1.orientation = "horizontal"
+	portal1.direction = "up"
+
+	local portal2 = {}
+	portal2.color = "portal_yellow.png"
+	portal2.x = display.contentWidth-12.5
+	portal2.y = 3/4 * display.contentHeight
+	portal2.orientation = "vertical"
+	portal2.direction = "left"
+
+	local portal3 = {}
+	portal3.color = "portal_blue.png"
+	portal3.x = 12.5
+	portal3.y = 3/4 * display.contentHeight
+	portal3.orientation = "vertical"
+	portal3.direction = "right"
+
+	local portal4 = {}
+	portal4.color = "portal_blue.png"
+	portal4.x = display.contentWidth-12.5
+	portal4.y = display.contentHeight/2 - 250
+	portal4.orientation = "vertical"
+	portal4.direction = "left"
+
+	--Barriers
+	local barrier1 = {}
+	barrier1.color = "portal_red.png"
+	barrier1.width = display.contentWidth
+	barrier1.height = 25
+	barrier1.x = display.contentCenterX
+	barrier1.y = display.contentCenterY
+	barrier1.rotationVal = 0
+
+	--Player and Goal
+	_player.x = display.contentCenterX
+	_player.y = 3/4 * display.contentHeight - 100
+	_goal.x = display.contentHeight/5
+	_goal.y = display.contentHeight/5
+
+	table.insert( _portals, portal1 )
+	table.insert( _portals, portal2 )
+	table.insert( _portals, portal3 )
+	table.insert( _portals, portal4 )
+	table.insert( _barriers, barrier1 )
+end
+
 
 function levels.level(num)
 	if(num==1) then
