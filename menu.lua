@@ -13,8 +13,9 @@ _goal = {}
 _player = {}
 _canSwipe = false
 
-local portalOffsetTop = display.safeScreenOriginY + 12.5
-local portalOffsetBottom = display.safeScreenOriginY + display.safeActualContentHeight - 12.5
+local portalOffsetTop = 12.5 -- display.safeScreenOriginY + 12.5
+local portalOffsetBottom = display.contentHeight - 12.5 --display.safeScreenOriginY + display.safeActualContentHeight - 12.5
+local screenHeight = display.contentHeight --display.safeActualContentHeight+display.safeScreenOriginY
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
@@ -136,14 +137,13 @@ function scene:create( event )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
-	local tophelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.contentHeight-display.safeActualContentHeight )
+	local tophelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.screenOriginY )
 	tophelper.x = display.contentCenterX
-	tophelper.y = (display.safeScreenOriginY) - (display.contentHeight-display.safeActualContentHeight)/2
+	tophelper.y = display.screenOriginY/2
 
-	local bothelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.contentHeight-display.safeActualContentHeight )
+	local bothelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.actualContentHeight-display.contentHeight )
 	bothelper.x = display.contentCenterX
-	bothelper.y = display.safeScreenOriginY + display.safeActualContentHeight + (display.contentHeight-display.safeActualContentHeight)/2
-
+	bothelper.y = display.actualContentHeight-(display.actualContentHeight-display.contentHeight)/2 
 
 	
 	-- Load the player

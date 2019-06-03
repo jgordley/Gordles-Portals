@@ -48,6 +48,14 @@ function scene:create( event )
 	local background = display.newImageRect( backGroup, "background.png", display.contentWidth, display.contentHeight )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
+
+	local tophelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.screenOriginY )
+	tophelper.x = display.contentCenterX
+	tophelper.y = display.screenOriginY/2
+
+	local bothelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.actualContentHeight-display.contentHeight )
+	bothelper.x = display.contentCenterX
+	bothelper.y = display.actualContentHeight-(display.actualContentHeight-display.contentHeight)/2 
 	
 	local numCounter = 1
 	for i=1, 5 do

@@ -10,8 +10,9 @@
 local levels = {}
 
 -- Offsets with buffer calculation
-local portalOffsetTop = display.safeScreenOriginY + 12.5
-local portalOffsetBottom = display.safeScreenOriginY + display.safeActualContentHeight - 12.5
+local portalOffsetTop = 12.5 -- display.safeScreenOriginY + 12.5
+local portalOffsetBottom = display.contentHeight - 12.5 --display.safeScreenOriginY + display.safeActualContentHeight - 12.5
+local screenHeight = display.contentHeight --display.safeActualContentHeight+display.safeScreenOriginY
 
 -- Level One ------------------------------------------------
 
@@ -187,21 +188,21 @@ function levelThree()
 	local portal2 = {}
 	portal2.color = "portal_yellow.png"
 	portal2.x = display.contentWidth-12.5
-	portal2.y = 3/4 * display.contentHeight
+	portal2.y = 3/4 * screenHeight
 	portal2.orientation = "vertical"
 	portal2.direction = "left"
 
 	local portal3 = {}
 	portal3.color = "portal_blue.png"
 	portal3.x = 12.5
-	portal3.y = 3/4 * display.contentHeight
+	portal3.y = 3/4 * screenHeight
 	portal3.orientation = "vertical"
 	portal3.direction = "right"
 
 	local portal4 = {}
 	portal4.color = "portal_blue.png"
 	portal4.x = display.contentWidth-12.5
-	portal4.y = display.contentHeight/2 - 250
+	portal4.y = display.contentHeight/2 - display.contentHeight/8
 	portal4.orientation = "vertical"
 	portal4.direction = "left"
 
@@ -216,9 +217,10 @@ function levelThree()
 
 	--Player and Goal
 	_player.x = display.contentCenterX
-	_player.y = 3/4 * display.contentHeight - 100
-	_goal.x = display.contentHeight/5
-	_goal.y = display.contentHeight/5
+
+	_player.y = 2*screenHeight/3 - 50
+	_goal.x = screenHeight/8
+	_goal.y = screenHeight/4
 
 	table.insert( _portals, portal1 )
 	table.insert( _portals, portal2 )

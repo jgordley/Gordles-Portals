@@ -138,6 +138,15 @@ local function setPlayerVelocity(vx, vy)
 	player:setLinearVelocity(player.vx, player.vy)
 end
 
+local function handleDeath(player1)
+	print("died")
+	player1.x = _player.x
+	player1.y = _player.y
+	_canSwipe = true
+	setPlayerVelocity(0, 0)
+	player1.canRespawn = true
+end
+
 local function convertCoordinates(vx, vy)
 	if vx > 0 and vy > 0 then
 		vy = -vy
@@ -226,41 +235,40 @@ local function transport(object, objectCollided, target, xv, yv)
 		print("Transport offset: " .. transportOffset)
 	end
 
-	-- Determine the new x and y coordinates and transport the object
-	if target.orientation == "horizontal" then
-		if target.direction == "up" then
-			xtarget = target.x-transportOffset
-			ytarget = target.y
-		elseif target.direction == "down" then
-			xtarget = target.x-transportOffset
-			ytarget = target.y
+
+	if math.abs(transportOffset) > 115 then
+		-- nothing
+	else
+		-- Determine the new x and y coordinates and transport the object
+		if target.orientation == "horizontal" then
+			if target.direction == "up" then
+				xtarget = target.x-transportOffset
+				ytarget = target.y
+			elseif target.direction == "down" then
+				xtarget = target.x-transportOffset
+				ytarget = target.y
+			end
+		elseif target.orientation == "vertical" then
+			if target.direction == "right" then
+				xtarget = target.x 
+				ytarget = target.y-transportOffset
+			elseif target.direction == "left" then
+				xtarget = target.x 
+				ytarget = target.y-transportOffset
+			end
 		end
-	elseif target.orientation == "vertical" then
-		if target.direction == "right" then
-			xtarget = target.x 
-			ytarget = target.y-transportOffset
-		elseif target.direction == "left" then
-			xtarget = target.x 
-			ytarget = target.y-transportOffset
-		end
+		object.x = xtarget
+		object.y = ytarget
+
+		xdir, ydir = trajectory(object, objectCollided, target, xv, yv)
+
+		-- xdir, ydir = trajectory(object, objectCollided, target, xv, yv)
+		object:setLinearVelocity(xdir, ydir)
 	end
-	object.x = xtarget
-	object.y = ytarget
-
-	xdir, ydir = trajectory(object, objectCollided, target, xv, yv)
-
-	-- xdir, ydir = trajectory(object, objectCollided, target, xv, yv)
-	object:setLinearVelocity(xdir, ydir)
+	
 end
 
-local function handleDeath(player1)
-	print("died")
-	player1.x = _player.x
-	player1.y = _player.y
-	_canSwipe = true
-	setPlayerVelocity(0, 0)
-	player1.canRespawn = true
-end
+
 
 local function handleWin(player1, goal1)
 	print("victory")
@@ -369,6 +377,9 @@ function scene:create( event )
 	endX = 0
 	endY = 0
 
+	print("Height is: " .. display.contentHeight)
+	print("Safe Height is: " .. display.safeActualContentHeight)
+	print("Width is: " .. display.contentWidth)
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
 
@@ -389,14 +400,23 @@ function scene:create( event )
 	background.x = display.contentCenterX
 	background.y = display.contentCenterY
 
-	local tophelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.contentHeight-display.safeActualContentHeight )
-	tophelper.x = display.contentCenterX
-	tophelper.y = (display.safeScreenOriginY) - (display.contentHeight-display.safeActualContentHeight)/2
+	-- local tophelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.contentHeight-display.safeActualContentHeight )
+	-- tophelper.x = display.contentCenterX
+	-- tophelper.y = (display.safeScreenOriginY) - (display.contentHeight-display.safeActualContentHeight)/2
 
-	local bothelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.contentHeight-display.safeActualContentHeight )
-	bothelper.x = display.contentCenterX
-	bothelper.y = display.safeScreenOriginY + display.safeActualContentHeight + (display.contentHeight-display.safeActualContentHeight)/2
+	-- local bothelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.contentHeight-display.safeActualContentHeight )
+	-- bothelper.x = display.contentCenterX
+	-- bothelper.y = display.safeScreenOriginY + display.safeActualContentHeight + (display.contentHeight-display.safeActualContentHeight)/2
 	
+	local tophelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.screenOriginY )
+	tophelper.x = display.contentCenterX
+	tophelper.y = display.screenOriginY/2
+
+	local bothelper = display.newImageRect( uiGroup, "background.png", display.contentWidth, display.actualContentHeight-display.contentHeight )
+	bothelper.x = display.contentCenterX
+	bothelper.y = display.actualContentHeight-(display.actualContentHeight-display.contentHeight)/2 
+	
+
 	-- Load the player
 	loadPlayer(_player.x, _player.y)
 	loadGoal(_goal.x, _goal.y)
@@ -426,6 +446,32 @@ function scene:create( event )
 		barrier1 = _barriers[i]
 		loadBarrier(barrier1, barrier1.color, barrier1.x, barrier1.y, barrier1.width, barrier1.height)
 	end
+
+
+	--Load outside barriers
+	leftWall = display.newImageRect(mainGroup, "portal_red.png", 100, display.contentHeight*2)
+	leftWall.x = -300
+	leftWall.y = display.contentCenterY
+	leftWall.myName = "barrier"
+	physics.addBody(leftWall, "dynamic", {bounce=1, isSensor=true})
+
+	rightWall = display.newImageRect(mainGroup, "portal_red.png", 100, display.contentHeight*2)
+	rightWall.x = display.contentWidth+300
+	rightWall.y = display.contentCenterY
+	rightWall.myName = "barrier"
+	physics.addBody(rightWall, "dynamic", {bounce=1, isSensor=true})
+
+	topWall = display.newImageRect(mainGroup, "portal_red.png", display.contentWidth*2, 100)
+	topWall.x = display.contentCenterX
+	topWall.y = -300
+	topWall.myName = "barrier"
+	physics.addBody(topWall, "dynamic", {bounce=1, isSensor=true})
+
+	botWall = display.newImageRect(mainGroup, "portal_red.png", display.contentWidth*2, 100)
+	botWall.x = display.contentCenterX
+	botWall.y = display.contentHeight + 300
+	botWall.myName = "barrier"
+	physics.addBody(botWall, "dynamic", {bounce=1, isSensor=true})
 
 	--Allow user to swipe
 	_canSwipe = true
