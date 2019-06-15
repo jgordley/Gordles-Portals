@@ -21,9 +21,11 @@ local function levelOne()
 	--Clear previous table and barriers
 	_portals = {}
 	_barriers = {}
+	_switchers = {}
 	--Portal Sets
 	_numPortalSets = 1
 	_numBarriers = 1
+	_hasSwitching = false
 
 	--Portals
 	local portal1 = {}
@@ -65,9 +67,11 @@ local function levelTwo()
 	--Clear previous table and barriers
 	_portals = {}
 	_barriers = {}
+	_switchers = {}
 	--Portal Sets
 	_numPortalSets = 4
 	_numBarriers = 3
+	_hasSwitching = false
 
 	--Portals
 	local portal1 = {}
@@ -173,9 +177,11 @@ function levelThree()
 		--Clear previous table and barriers
 	_portals = {}
 	_barriers = {}
+	_switchers = {}
 	--Portal Sets
 	_numPortalSets = 2
 	_numBarriers = 1
+	_hasSwitching = false
 
 	--Portals
 	local portal1 = {}
@@ -230,6 +236,91 @@ function levelThree()
 end
 
 
+function levelFour()
+		--Clear previous table and barriers
+	--Clear previous table and barriers
+	_portals = {}
+	_barriers = {}
+	_switchers = {}
+	--Portal Sets
+	_numPortalSets = 3
+	_numBarriers = 1
+
+	_hasSwitching = true
+
+	--Portals
+	local portal1 = {}
+	portal1.color = "portal_purple.png"
+	portal1.x = 12.5
+	portal1.y = 4*display.contentHeight/5
+	portal1.orientation = "vertical"
+	portal1.direction = "right"
+
+	local portal2 = {}
+	portal2.color = "portal_purple.png"
+	portal2.x = display.contentCenterX
+	portal2.y = portalOffsetTop
+	portal2.orientation = "horizontal"
+	portal2.direction = "down"
+	portal2.switch = true
+
+	local portal3 = {}
+	portal3.color = "portal_pink.png"
+	portal3.x = display.contentCenterX
+	portal3.y = portalOffsetTop
+	portal3.orientation = "horizontal"
+	portal3.direction = "down"
+	portal3.switch = true
+
+	local portal4 = {}
+	portal4.color = "portal_pink.png"
+	portal4.x = 12.5
+	portal4.y = 1*display.contentHeight/5
+	portal4.orientation = "vertical"
+	portal4.direction = "right"
+
+	local portal5 = {}
+	portal5.color = "portal_yellow.png"
+	portal5.x = display.contentCenterX
+	portal5.y = portalOffsetTop
+	portal5.orientation = "horizontal"
+	portal5.direction = "down"
+	portal5.switch = true
+
+	local portal6 = {}
+	portal6.color = "portal_yellow.png"
+	portal6.x = display.contentWidth-12.5
+	portal6.y = 2*display.contentHeight/5
+	portal6.orientation = "vertical"
+	portal6.direction = "left"
+
+
+	--Barriers
+	local barrier1 = {}
+	barrier1.color = "portal_red.png"
+	barrier1.width = display.contentWidth
+	barrier1.height = 25
+	barrier1.x = display.contentCenterX
+	barrier1.y = 3*display.contentHeight/5
+	barrier1.rotationVal = 0
+
+	--Player and Goal
+	_player.x = display.contentCenterX
+	_player.y = display.contentCenterY
+	_goal.x = display.contentCenterX
+	_goal.y = 4*display.contentHeight/5
+
+	table.insert( _portals, portal1 )
+	table.insert( _portals, portal2 )
+	table.insert( _portals, portal3 )
+	table.insert( _portals, portal4 )
+	table.insert( _portals, portal5 )
+	table.insert( _portals, portal6 )
+	table.insert( _barriers, barrier1 )
+end
+
+
+
 function levels.level(num)
 	if(num==1) then
 		levelOne()
@@ -238,7 +329,9 @@ function levels.level(num)
 	elseif(num==3) then
 		levelThree()
 	elseif(num==4) then
+		levelFour()
 	elseif(num==5) then
+		levelFive()
 	end
 end
 

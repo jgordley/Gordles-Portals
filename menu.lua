@@ -12,6 +12,9 @@ _numBarriers = 0
 _goal = {}
 _player = {}
 _canSwipe = false
+_hasSwitching = false
+_switchers = {}
+_currentLevel = 0
 
 local portalOffsetTop = 12.5 -- display.safeScreenOriginY + 12.5
 local portalOffsetBottom = display.contentHeight - 12.5 --display.safeScreenOriginY + display.safeActualContentHeight - 12.5
@@ -100,12 +103,12 @@ local function onCollision(event)
 		if(obj1.myName == "menuPlayer" and obj1.canTravel) then
 			vx, vy = obj1:getLinearVelocity()
 			obj1.canTravel=false
-			timer.performWithDelay(100, function() return fadeAndMove(obj1, obj2.partner.x, obj2.partner.y, vx, vy) end, 1)
+			timer.performWithDelay(250, function() return fadeAndMove(obj1, obj2.partner.x, obj2.partner.y, vx, vy) end, 1)
 			timer.performWithDelay(500, function() obj1.canTravel=true end, 1)
 		elseif(obj2.myName == "menuPlayer" and obj2.canTravel) then
 			vx, vy = obj2:getLinearVelocity()
 			obj2.canTravel=false
-			timer.performWithDelay(100, function() return fadeAndMove(obj2, obj1.partner.x, obj1.partner.y, vx, vy) end, 1)
+			timer.performWithDelay(250, function() return fadeAndMove(obj2, obj1.partner.x, obj1.partner.y, vx, vy) end, 1)
 			timer.performWithDelay(500, function() obj2.canTravel=true end, 1)
 		end
 	end
@@ -116,6 +119,7 @@ end
 
 -- create()
 function scene:create( event )
+
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen

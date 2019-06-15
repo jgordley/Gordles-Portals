@@ -57,8 +57,14 @@ local velocityMagnitude
 local cX 
 local cY 
 local travelDirection
+local switchNum = 1
+local switchCounter = 1
+local switchTimer
 
 local function backButton(event)
+	if _hasSwitching then 
+		timer.cancel(switchTimer)
+	end
 	if event.phase == "began" then
         composer.gotoScene("levelselect", {time=500, effect="crossFade"})
     end
@@ -90,6 +96,19 @@ local function loadGoal(locationX, locationY)
 	goal.myName = "goal"
 end
 
+local function switchPortals()
+	_switchers[switchNum]:toFront()
+	for switchCounter=1,#_switchers,1 do
+		_switchers[switchCounter].isBodyActive = false
+	end
+	_switchers[switchNum].isBodyActive = true
+	if switchNum >= #_switchers then
+		switchNum = 1
+	else
+		switchNum=switchNum+1
+	end
+end
+
 local function orientation(direction)
 	if(direction=="horizontal") then
 		return 250, 25
@@ -100,7 +119,7 @@ local function orientation(direction)
 	end
 end
 
-local function loadPortals(portalName, x1, y1, orientation1, direction1, x2, y2, orientation2, direction2)
+local function loadPortals(pOne, pTwo, portalName, x1, y1, orientation1, direction1, x2, y2, orientation2, direction2)
 	width, height = orientation(orientation1)
 	portalOne = display.newImageRect(mainGroup, portalName, width, height)
 	portalOne.x = x1
@@ -121,6 +140,17 @@ local function loadPortals(portalName, x1, y1, orientation1, direction1, x2, y2,
 
 	portalOne.partner = portalTwo
 	portalTwo.partner = portalOne
+
+	if pOne.switch then
+		table.insert( _switchers, portalOne)
+		print("ADDED")
+		print(_switchers[1])
+	end
+	if pTwo.switch then
+		table.insert( _switchers, portalTwo)
+		print("ADDED")
+		print(_switchers[1])
+	end
 end
 
 local function loadBarrier(barrier, barrierName, x1, y1, width, height) 
@@ -276,6 +306,14 @@ local function handleWin(player1, goal1)
 	display.remove(player1)
 	display.remove(goal1)
 
+	local darkBG = display.newRect(uiGroup, display.contentCenterX, display.contentCenterY, 4/5 * display.contentWidth, 1/2 * display.contentHeight)
+	local gradient = {
+    type="gradient",
+    color1={ 66/255, 130/255, 179/255 }, color2={ 255/255, 201/255, 120/255 }, direction="down"
+	}
+	darkBG:setFillColor(gradient)
+	darkBG.alpha = 0.8
+
 	local nextLevelButton = display.newImageRect(uiGroup, "portal_blue.png", display.contentWidth/2, display.contentHeight/10)
 	nextLevelButton.x = display.contentCenterX
 	nextLevelButton.y = display.contentCenterY + 150
@@ -428,24 +466,12 @@ function scene:create( event )
 	loadPlayer(_player.x, _player.y)
 	loadGoal(_goal.x, _goal.y)
 
-	-- Load the edges
-	-- local leftWall = display.newImageRect(mainGroup, "portal_red.png", 10, display.contentHeight)
-	-- leftWall.x = 5
-	-- leftWall.y = display.contentCenterY
-	-- leftWall.myName = "barrier"
-	-- physics.addBody(leftWall, "dynamic", {bounce=1, isSensor=true})
-
-	-- local topWall = display.newImageRect(mainGroup, "portal_red.png", display.contentWidth, 10)
-	-- topWall.x = display.contentCenterX
-	-- topWall.y = 5
-	-- topWall.myName = "barrier"
-	-- physics.addBody(topWall, "dynamic", {bounce=1, isSensor=true})
-
 	-- Load the portals
+
 	for i=1,_numPortalSets*2,2 do
 		portal1 = _portals[i]
 		portal2 = _portals[i+1]
-		loadPortals(portal1.color, portal1.x, portal1.y, portal1.orientation, portal1.direction, portal2.x, portal2.y, portal2.orientation, portal2.direction)
+		loadPortals(portal1, portal2, portal1.color, portal1.x, portal1.y, portal1.orientation, portal1.direction, portal2.x, portal2.y, portal2.orientation, portal2.direction)
 	end
 
 	-- Load the barriers
@@ -483,11 +509,15 @@ function scene:create( event )
 	--Allow user to swipe
 	_canSwipe = true
 
+	-- set timer to switch portals if necessary
+	if _hasSwitching then
+		switchTimer = timer.performWithDelay( 1000, switchPortals, 0 )
+	end
 
-	-- Display lives and score
-	
-	-- StartPlayerMovement
-	--player:setLinearVelocity(0, -400)
+	--font?
+	if _currentLevel==1 then
+		local displayText = display.newText( uiGroup, "Swipe up!", display.contentWidth/2, display.contentHeight/4, "comic_andy.ttf", 100 )
+	end
 end
 
 

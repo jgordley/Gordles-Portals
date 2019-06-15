@@ -12,6 +12,7 @@ local levels = {}
 local function handleSelect(event) 
 	if event.phase == "began" then
         levelScript.level(event.target.number)
+        _currentLevel = event.target.number
         composer.gotoScene("game", {time=500, effect="crossFade"})
         composer.removeScene(scene)
     end
@@ -30,6 +31,8 @@ end
 
 -- create()
 function scene:create( event )
+
+
 
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
@@ -88,7 +91,6 @@ end
 
 -- show()
 function scene:show( event )
-
 	local sceneGroup = self.view
 	local phase = event.phase
 
